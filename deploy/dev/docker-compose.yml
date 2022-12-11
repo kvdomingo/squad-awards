@@ -1,0 +1,60 @@
+volumes:
+  db-data:
+
+networks:
+  gateway:
+    external: true
+
+services:
+  api:
+    build:
+      context: ../..
+      dockerfile: deploy/dev/Dockerfile
+    image: kvdomingo/squad-awards-api:latest
+    env_file: ../../.env
+    volumes:
+      - ../..:/backend
+    depends_on:
+      - postgres
+
+  app:
+    image: node:16-alpine
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+    entrypoint:
+      - /bin/sh
+      - "-c"
+      - "yarn install && exec yarn dev --host 0.0.0.0 --port 3000"
+    volumes:
+      - ../../web/static/web:/app
+
+  proxy:
+    image: bitnami/nginx:1.21.6
+    environment:
+      NGINX_HTTP_PORT_NUMBER: 8000
+    volumes:
+      - ./proxy:/opt/bitnami/nginx/conf/server_blocks:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.squad-awards.rule=Host(`squad-awards.localhost`)"
+      - "traefik.http.routers.squad-awards.entrypoints=http"
+      - "traefik.docker.network=gateway"
+      - "traefik.http.services.squad-awards.loadbalancer.server.port=8000"
+    restart: unless-stopped
+    networks:
+      - default
+      - gateway
+    depends_on:
+      - api
+      - app
+
+  postgres:
+    image: bitnami/postgresql:13
+    environment:
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRESQL_DATABASE}
+      - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
+      - POSTGRESQL_MASTER_PORT_NUMBER=5432
+    volumes:
+      - db-data:/bitnami/postgresql
