@@ -1,6 +1,20 @@
 from uuid import uuid4
 
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+class AwardCategory(models.TextChoices):
+    BEST_FEMALE_SOLO_ARTIST = "BFSA", _("Best Female Solo Artist")
+    BEST_MALE_SOLO_ARTIST = "BMSA", _("Best Male Solo Artist")
+    BEST_FEMALE_GROUP = "BFG", _("Best Female Group")
+    BEST_MALE_GROUP = "BMG", _("Best Male Group")
+    MUSIC_VIDEO_OF_THE_YEAR = "MVOTY", _("Music Video of the Year")
+    ROOKIE_OF_THE_YEAR = "ROTY", _("Rookie of the Year")
+    ALBUM_OF_THE_YEAR = "AOTY", _("Album of the Year")
+    SONG_OF_THE_YEAR = "SOTY", _("Song of the Year")
+    BSIDE_OF_THE_YEAR = "BOTY", _("B-Side of the Year")
+    SADGE_OF_THE_YEAR = "SADGE", _("Sadge of the Year")
 
 
 class DiscordUser(models.Model):
@@ -17,3 +31,18 @@ class DiscordUser(models.Model):
     class Meta:
         ordering = ["username"]
         unique_together = ["username", "discriminator"]
+
+
+class Answer(models.Model):
+    id = models.UUIDField(primary_key=True, unique=True, db_index=True, default=uuid4)
+    created = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey("DiscordUser", on_delete=models.CASCADE)
+    category = models.CharField(max_length=8, choices=AwardCategory.choices)
+    answer = models.CharField(max_length=256, blank=True, null=True)
+
+    def __str__(self):
+        return str(self.id)
+
+    class Meta:
+        ordering = ["user", "category"]
+        unique_together = ["user", "category"]
