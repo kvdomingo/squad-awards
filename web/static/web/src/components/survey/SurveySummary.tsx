@@ -20,7 +20,6 @@ function SurveySummary({ answers, steps }: SurveySummaryProps) {
                     : `https://storage.googleapis.com/squad-awards-assets/${answers[key].image}`
                   : ""
               }
-              // alt={opt.label}
             />
             <CardContent
               sx={{
@@ -32,7 +31,7 @@ function SurveySummary({ answers, steps }: SurveySummaryProps) {
               }}
             >
               <Typography variant="h6">{steps.find((s: Record<string, any>) => s.key === key)!.label}</Typography>
-              <Typography variant="overline">{answers[key]?.label ?? "None"}</Typography>
+              <Typography variant="overline">{answers[key]?.name ?? "None"}</Typography>
             </CardContent>
           </Card>
         </Grid>

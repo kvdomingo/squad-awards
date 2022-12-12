@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, Button, Grid, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import api from "../../api";
 import SurveySection from "./SurveySection";
 import SurveySummary from "./SurveySummary";
-import options from "./options.json";
 
 const STEPS = [
   {
@@ -47,26 +47,35 @@ const STEPS = [
   },
   {
     key: "SUMMARY",
-    label: "Summary",
+    label: "Your Summary",
   },
 ];
 
-const OPTIONS: Record<string, Record<string, any>[]> = options;
-
 function Survey() {
   const [activeStep, setActiveStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, any>>({
-    BFSA: null,
-    BMSA: null,
-    BFG: null,
-    BMG: null,
-    MVOTY: null,
-    ROTY: null,
-    AOTY: null,
-    SOTY: null,
-    BOTY: null,
-    SADGE: null,
-  });
+  const [categories, setCategories] = useState<Record<string, any>[]>([]);
+  const [choices, setChoices] = useState<Record<string, any>[]>([]);
+  const [answers, setAnswers] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    api.survey
+      .listCategories()
+      .then(res => {
+        let { data } = res;
+        setCategories(data);
+        const ans_: Record<string, any> = {};
+        data.forEach((dat: Record<string, any>) => (ans_[dat.key] = null));
+        setAnswers(ans_);
+      })
+      .catch(err => console.error(err.message));
+  }, []);
+
+  useEffect(() => {
+    api.survey
+      .listChoices()
+      .then(res => setChoices(res.data))
+      .catch(err => console.error(err.message));
+  }, []);
 
   return (
     <Box sx={{ width: "100%", mt: 6 }}>
@@ -89,7 +98,7 @@ function Survey() {
       ) : (
         <SurveySection
           optionsKey={STEPS[activeStep].key}
-          options={OPTIONS[STEPS[activeStep].key] || []}
+          options={choices.filter(c => c.category === STEPS[activeStep].key)}
           answers={answers}
           setAnswers={setAnswers}
         />

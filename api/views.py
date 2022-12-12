@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import DiscordUser
-from .serializers import DiscordUserSerializer
+from .models import AwardCategory, AwardChoice, DiscordUser
+from .serializers import AwardChoiceSerializer, DiscordUserSerializer
 from .types import RESTRequest
 
 
@@ -158,3 +158,21 @@ def logout(request: RESTRequest):
     res.delete_cookie("refresh", path="/api/auth", samesite="Strict")
     request.session.flush()
     return res
+
+
+@api_view()
+def list_award_categories(request: RESTRequest):
+    data = [{"key": cat[0], "label": cat[1]} for cat in AwardCategory.choices]
+    return Response(data)
+
+
+@api_view()
+def list_award_choices(request: RESTRequest):
+    queryset = AwardChoice.objects.all()
+    serializer = AwardChoiceSerializer(queryset, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["POST"])
+def submit_survey(request: RESTRequest):
+    data: dict = request.data

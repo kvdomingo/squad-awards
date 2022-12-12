@@ -1,3 +1,7 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Answer, AwardChoice, DiscordUser
+
+admin.site.register(Answer)
+admin.site.register(AwardChoice)
+admin.site.register(DiscordUser)

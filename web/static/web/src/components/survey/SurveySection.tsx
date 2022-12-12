@@ -14,23 +14,23 @@ function SurveySection({ optionsKey, options, setAnswers, answers }: SurveySecti
   function handleClick(option: Record<string, any>) {
     setAnswers(ans => ({
       ...ans,
-      [optionsKey]: currentAnswer?.key === option.key ? null : option,
+      [optionsKey]: currentAnswer?.id === option.id ? null : option,
     }));
   }
 
   return (
     <Grid container spacing={2} sx={{ pb: 15 }}>
       {options
-        .sort((a, b) => a.label.replace(/[\W_]/gi, "").localeCompare(b.label.replace(/[\W_]/gi, "")))
+        .sort((a, b) => a.name.replace(/[\W_]/gi, "").localeCompare(b.name.replace(/[\W_]/gi, "")))
         .map(opt => (
-          <Grid item xs={6} md={4} lg={3} xl={2} key={opt.key}>
+          <Grid item xs={6} md={4} lg={3} xl={2} key={opt.id}>
             <Card
               variant="outlined"
               sx={{
                 height: "100%",
-                borderColor: currentAnswer?.key === opt.key ? "success.main" : undefined,
-                backgroundColor: currentAnswer?.key === opt.key ? "background.default" : undefined,
-                borderWidth: currentAnswer?.key === opt.key ? 3 : undefined,
+                borderColor: currentAnswer?.id === opt.id ? "success.main" : undefined,
+                backgroundColor: currentAnswer?.id === opt.id ? "background.default" : undefined,
+                borderWidth: currentAnswer?.id === opt.id ? 3 : undefined,
               }}
             >
               <CardActionArea sx={{ height: "100%" }} onClick={() => handleClick(opt)}>
@@ -43,7 +43,6 @@ function SurveySection({ optionsKey, options, setAnswers, answers }: SurveySecti
                         : `https://storage.googleapis.com/squad-awards-assets/${opt.image}`
                       : ""
                   }
-                  // alt={opt.label}
                 />
                 <CardContent
                   sx={{
@@ -53,7 +52,7 @@ function SurveySection({ optionsKey, options, setAnswers, answers }: SurveySecti
                     textAlign: "center",
                   }}
                 >
-                  <Typography variant="body2">{opt.label}</Typography>
+                  <Typography variant="body2">{opt.name}</Typography>
                 </CardContent>
               </CardActionArea>
             </Card>

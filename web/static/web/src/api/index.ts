@@ -19,6 +19,17 @@ const api = {
       return axi.get("/auth/logout");
     },
   },
+  survey: {
+    listCategories(): Promise<AxiosResponse> {
+      return axi.get("/categories");
+    },
+    listChoices(): Promise<AxiosResponse> {
+      return axi.get("/choices");
+    },
+    submit(): Promise<AxiosResponse> {
+      return axi.post("/survey");
+    },
+  },
 };
 
 export default api;
