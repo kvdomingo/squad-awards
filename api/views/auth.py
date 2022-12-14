@@ -10,14 +10,9 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-from .models import AwardCategory, AwardChoice, DiscordUser
-from .serializers import AwardChoiceSerializer, DiscordUserSerializer
-from .types import RESTRequest
-
-
-@api_view()
-def health(request: RESTRequest):
-    return Response("ok", content_type="text/plain")
+from ..models import Answer, DiscordUser
+from ..serializers import DiscordUserSerializer
+from ..types import RESTRequest
 
 
 @api_view()
@@ -32,7 +27,9 @@ def login(request: RESTRequest):
         "state": sha256(request.session.session_key.encode()).hexdigest(),
     }
     qs = "&".join([f"{k}={v}" for k, v in params.items()])
-    redirect_to = f"https://discord.com/oauth2/authorize?{qs}"
+    auth_url = settings.DISCORD_AUTH_URL
+    auth_url = auth_url._replace(path=f"{auth_url.path}/authorize")
+    redirect_to = f"{auth_url.geturl()}?{qs}"
     return HttpResponseRedirect(redirect_to)
 
 
@@ -51,8 +48,10 @@ def auth_callback(request: RESTRequest):
         "code": code,
         "redirect_uri": settings.DISCORD_CALLBACK_URL,
     }
+    api_url = settings.DISCORD_API_URL
+    api_url = api_url._replace(path=f"{settings.DISCORD_API_URL.path}/token")
     r = requests.post(
-        "https://discord.com/api/v10/oauth2/token",
+        api_url.geturl(),
         data=data,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
@@ -63,7 +62,8 @@ def auth_callback(request: RESTRequest):
     access = auth_response["access_token"]
     refresh = auth_response["refresh_token"]
 
-    r = requests.get("https://discord.com/api/v10/users/@me", headers={"Authorization": f"Bearer {access}"})
+    api_url = api_url._replace(path=f"{settings.DISCORD_API_URL.path}/users/@me")
+    r = requests.get(api_url.geturl(), headers={"Authorization": f"Bearer {access}"})
     if not r.ok:
         logger.error(r.text)
         return HttpResponseRedirect("/", status=r.status_code)
@@ -99,7 +99,9 @@ def get_current_user(request: RESTRequest):
     access = request.COOKIES.get("access")
     if not access:
         return Response({"error": "Missing access token"}, status=status.HTTP_401_UNAUTHORIZED)
-    r = requests.get("https://discord.com/api/v10/users/@me", headers={"Authorization": f"Bearer {access}"})
+    api_url = settings.DISCORD_API_URL
+    api_url = api_url._replace(path=f"{api_url.path}/users/@me")
+    r = requests.get(api_url.geturl(), headers={"Authorization": f"Bearer {access}"})
     if not r.ok:
         logger.error(r.text)
         return HttpResponseRedirect("/", status=r.status_code)
@@ -107,8 +109,12 @@ def get_current_user(request: RESTRequest):
     valid_fields = DiscordUser._meta.get_fields()
     d_id = user_response.pop("id")
     user_response = {k: v for k, v in user_response.items() if k in valid_fields}
-    obj, _ = DiscordUser.objects.update_or_create(discord_id=d_id, defaults=user_response)
-    user = DiscordUserSerializer(obj).data
+    obj, created = DiscordUser.objects.update_or_create(discord_id=d_id, defaults=user_response)
+    if created:
+        has_answered = False
+    else:
+        has_answered = Answer.objects.select_related("user").filter(user__discord_id=obj.discord_id).exists()
+    user = {**DiscordUserSerializer(obj).data, "has_answered": has_answered}
     request.session.update({"user": user})
     return Response(user)
 
@@ -121,8 +127,10 @@ def refresh(request: RESTRequest):
         "grant_type": "refresh_token",
         "refresh_token": request.COOKIES.get("refresh"),
     }
+    auth_url = settings.DISCORD_AUTH_URL
+    auth_url = auth_url._replace(path=f"{auth_url.path}/token")
     r = requests.post(
-        "https://discord.com/api/v10/oauth2/token",
+        auth_url.geturl(),
         data=data,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
@@ -158,21 +166,3 @@ def logout(request: RESTRequest):
     res.delete_cookie("refresh", path="/api/auth", samesite="Strict")
     request.session.flush()
     return res
-
-
-@api_view()
-def list_award_categories(request: RESTRequest):
-    data = [{"key": cat[0], "label": cat[1]} for cat in AwardCategory.choices]
-    return Response(data)
-
-
-@api_view()
-def list_award_choices(request: RESTRequest):
-    queryset = AwardChoice.objects.all()
-    serializer = AwardChoiceSerializer(queryset, many=True)
-    return Response(serializer.data)
-
-
-@api_view(["POST"])
-def submit_survey(request: RESTRequest):
-    data: dict = request.data

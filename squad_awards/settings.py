@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
+import urllib.parse
 from pathlib import Path
 
 import dj_database_url
@@ -91,6 +92,16 @@ WSGI_APPLICATION = "squad_awards.wsgi.application"
 DATABASES = {"default": dj_database_url.config()}
 
 
+# Cache
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "TIMEOUT": None,
+    }
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -143,3 +154,23 @@ DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 
 DISCORD_CALLBACK_URL = "http://squad-awards.localhost/api/callback"
+
+DISCORD_API_URL = urllib.parse.urlparse("https://discord.com/api/v10")
+
+DISCORD_AUTH_URL = urllib.parse.urlparse("https://discord.com/oauth2")
+
+# Spotify config
+
+SPOTIFY_CLIENT_ID = os.environ.get("SPOTIFY_CLIENT_ID")
+
+SPOTIFY_CLIENT_SECRET = os.environ.get("SPOTIFY_CLIENT_SECRET")
+
+SPOTIFY_API_URL = urllib.parse.urlparse("https://api.spotify.com/v1")
+
+SPOTIFTY_AUTH_URL = urllib.parse.urlparse("https://accounts.spotify.com")
+
+# Youtube config
+
+YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
+
+YOUTUBE_API_URL = urllib.parse.urlparse("https://youtube.googleapis.com/youtube/v3")

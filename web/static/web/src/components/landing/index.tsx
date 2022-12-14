@@ -1,11 +1,14 @@
+import { Dispatch, SetStateAction } from "react";
 import { Box, Container, Grid, Typography } from "@mui/material";
+import { GlobalNotificationState, User } from "../../../types";
 import Survey from "../survey";
 
 interface LandingProps {
-  user: Record<string, any>;
+  user: User;
+  setGlobalNotification: Dispatch<SetStateAction<GlobalNotificationState>>;
 }
 
-function Landing({ user }: LandingProps) {
+function Landing({ user, setGlobalNotification }: LandingProps) {
   return (
     <Container maxWidth="xl">
       <Grid container justifyContent="flex-end" alignItems="center">
@@ -21,7 +24,7 @@ function Landing({ user }: LandingProps) {
         </Typography>
       </Grid>
       <Grid container>
-        <Survey />
+        <Survey setGlobalNotification={setGlobalNotification} user={user} />
       </Grid>
     </Container>
   );

@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { GlobalNotificationState, User } from "../types";
 import "./App.css";
 import api from "./api";
 import Landing from "./components/landing";
 import Login from "./components/login";
+import GlobalNotification from "./components/utils/GlobalNotification";
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState<Record<string, any> | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [globalNotification, setGlobalNotification] = useState<GlobalNotificationState>({
+    visible: false,
+    severity: "info",
+    message: "",
+  });
 
   useEffect(() => {
     api.auth
@@ -24,8 +31,21 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={loggedIn ? <Landing user={user!} /> : <Login loading={loading} />} />
+        <Route
+          path="/"
+          element={
+            loggedIn ? (
+              <Landing user={user!} setGlobalNotification={setGlobalNotification} />
+            ) : (
+              <Login loading={loading} />
+            )
+          }
+        />
       </Routes>
+      <GlobalNotification
+        {...globalNotification}
+        onClose={() => setGlobalNotification(prev => ({ ...prev, visible: false }))}
+      />
     </Router>
   );
 }
