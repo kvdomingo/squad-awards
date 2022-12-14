@@ -37,7 +37,12 @@ DEBUG = True
 
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
-ALLOWED_HOSTS = ["*"]
+if PRODUCTION:
+    ALLOWED_HOSTS = [
+        ".kvdstudio.app",
+    ]
+else:
+    ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -86,11 +91,32 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "squad_awards.wsgi.application"
 
+CORS_ORIGIN_ALLOW_ALL = not PRODUCTION
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://(.+)\.kvdstudio\.app$",
+]
+
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {"default": dj_database_url.config()}
+if PRODUCTION:
+    DATABASE_URL = os.environ.get("DATABASE_URL")
+    DATABASE_CONFIG = dj_database_url.parse(DATABASE_URL)
+    DATABASE_CONFIG["HOST"] = unquote(DATABASE_CONFIG["HOST"])
+else:
+    DATABASE_CONFIG = dj_database_url.config()
+
+
+DATABASES = {"default": DATABASE_CONFIG}
+
+if PRODUCTION:
+    REST_FRAMEWORK = {
+        "DEFAULT_RENDERER_CLASSES": [
+            "rest_framework.renderers.JSONRenderer",
+        ]
+    }
 
 
 # Cache
