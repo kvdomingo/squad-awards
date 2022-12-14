@@ -14,8 +14,8 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { AwardChoice, SpotifyAlbumItem, SpotifyArtistItem, SpotifyTrackItem, StepInterface } from "../../../types";
 import api from "../../api";
+import { AwardChoice, SpotifyAlbumItem, SpotifyArtistItem, SpotifyTrackItem, StepInterface } from "../../types";
 
 interface SurveySectionProps {
   readOnly: boolean;

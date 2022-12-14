@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { Box, Container, Grid, Typography } from "@mui/material";
-import { GlobalNotificationState, User } from "../../../types";
+import { GlobalNotificationState, User } from "../../types";
 import Survey from "../survey";
 
 interface LandingProps {

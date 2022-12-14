@@ -49,12 +49,13 @@ def auth_callback(request: RESTRequest):
         "redirect_uri": settings.DISCORD_CALLBACK_URL,
     }
     api_url = settings.DISCORD_API_URL
-    api_url = api_url._replace(path=f"{settings.DISCORD_API_URL.path}/token")
+    api_url = api_url._replace(path=f"{settings.DISCORD_API_URL.path}/oauth2/token")
     r = requests.post(
         api_url.geturl(),
         data=data,
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
+    logger.debug(f"{r.request.method} {r.url} {r.status_code} {r.elapsed.microseconds / 1e3:.2f}ms")
     if not r.ok:
         logger.error(r.text)
         return HttpResponseRedirect("/", status=r.status_code)
@@ -64,6 +65,7 @@ def auth_callback(request: RESTRequest):
 
     api_url = api_url._replace(path=f"{settings.DISCORD_API_URL.path}/users/@me")
     r = requests.get(api_url.geturl(), headers={"Authorization": f"Bearer {access}"})
+    logger.debug(f"{r.request.method} {r.url} {r.status_code} {r.elapsed.microseconds / 1e3:.2f}ms")
     if not r.ok:
         logger.error(r.text)
         return HttpResponseRedirect("/", status=r.status_code)

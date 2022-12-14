@@ -1,8 +1,8 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { LoadingButton } from "@mui/lab";
 import { Box, Button, Grid, Step, StepLabel, Stepper, Typography } from "@mui/material";
-import { AwardChoice, GlobalNotificationState, StepInterface, User } from "../../../types";
 import api from "../../api";
+import { AwardChoice, GlobalNotificationState, StepInterface, User } from "../../types";
 import SurveySection from "./SurveySection";
 import SurveySummary from "./SurveySummary";
 

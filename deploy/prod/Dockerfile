@@ -2,7 +2,7 @@ FROM node:16-alpine as build
 
 WORKDIR /tmp
 
-COPY ../../web/static/web/ ./
+COPY ../../web/app/ ./
 
 RUN yarn install && yarn build
 
@@ -25,12 +25,11 @@ WORKDIR /backend
 
 COPY ../../api/ ./api/
 COPY ../../squad_awards/ ./squad_awards/
-COPY ../../web/*.py ./web/
-COPY --from=build /tmp/dist/ ../web/static/web/
-COPY ./docker-entrypoint.sh ./
-
-RUN chmod +x docker-entrypoint.sh
+COPY ../../*.py ./
+COPY ../../deploy/prod/docker-entrypoint.sh ./
+COPY --from=build /tmp/dist/ ./web/app/
 
 EXPOSE $PORT
 
 ENTRYPOINT [ "/backend/docker-entrypoint.sh" ]
+

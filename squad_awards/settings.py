@@ -33,7 +33,9 @@ PRODUCTION = PYTHON_ENV == "production"
 SECRET_KEY = os.environ.get("SECRET_KEY", default=get_random_secret_key())
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not PRODUCTION
+DEBUG = True
+
+DEBUG_PROPAGATE_EXCEPTIONS = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -42,7 +44,6 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "api.apps.ApiConfig",
-    "web.apps.WebConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -70,7 +71,7 @@ ROOT_URLCONF = "squad_awards.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "web" / "app"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -140,6 +141,11 @@ STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "static"
 
+STATICFILES_DIRS = [
+    BASE_DIR / "web" / "app",
+    BASE_DIR / "web" / "app" / "assets",
+]
+
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
@@ -153,7 +159,9 @@ DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 
-DISCORD_CALLBACK_URL = "http://squad-awards.localhost/api/callback"
+DISCORD_CALLBACK_URL = (
+    "http://squad-awards.localhost/api/callback" if PRODUCTION else "http://dev.squad-awards.localhost/api/callback"
+)
 
 DISCORD_API_URL = urllib.parse.urlparse("https://discord.com/api/v10")
 
@@ -169,7 +177,7 @@ SPOTIFY_API_URL = urllib.parse.urlparse("https://api.spotify.com/v1")
 
 SPOTIFTY_AUTH_URL = urllib.parse.urlparse("https://accounts.spotify.com")
 
-# Youtube config
+# YouTube config
 
 YOUTUBE_API_KEY = os.environ.get("YOUTUBE_API_KEY")
 

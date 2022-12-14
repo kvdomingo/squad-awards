@@ -47,4 +47,4 @@ tasks:
   clean:
     desc: Stop and remove all containers
     cmds:
-      - docker compose -p {{.NAME}} -f deploy/{{.ENV}}/docker-compose.yml down --remove-orphans {{.CLI_ARGS}}
+      - docker compose -p {{.NAME}} -f deploy/{{.ENV}}/docker-compose.yml down -v --remove-orphans {{.CLI_ARGS}}

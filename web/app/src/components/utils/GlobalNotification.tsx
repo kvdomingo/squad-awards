@@ -1,5 +1,5 @@
 import { Alert, Snackbar } from "@mui/material";
-import { GlobalNotificationState } from "../../../types";
+import { GlobalNotificationState } from "../../types";
 
 interface GlobalNotificationProps extends GlobalNotificationState {
   onClose: () => void;

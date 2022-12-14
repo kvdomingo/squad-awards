@@ -1,5 +1,5 @@
 import { Card, CardContent, CardMedia, Grid, Typography } from "@mui/material";
-import { AwardChoice, StepInterface } from "../../../types";
+import { AwardChoice, StepInterface } from "../../types";
 
 interface SurveySummaryProps {
   answers: Record<string, AwardChoice | null>;

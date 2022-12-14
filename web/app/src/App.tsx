@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { GlobalNotificationState, User } from "../types";
 import "./App.css";
 import api from "./api";
 import Landing from "./components/landing";
 import Login from "./components/login";
 import GlobalNotification from "./components/utils/GlobalNotification";
+import { GlobalNotificationState, User } from "./types";
 
 function App() {
   const [loading, setLoading] = useState(true);

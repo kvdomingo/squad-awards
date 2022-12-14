@@ -6,7 +6,7 @@ import {
   SpotifySearchTrackResult,
   User,
   YoutubeSearchResult,
-} from "../../types";
+} from "../types";
 
 const baseURL = "/api";
 

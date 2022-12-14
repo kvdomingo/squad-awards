@@ -24,4 +24,4 @@ urlpatterns = [
 ]
 
 if settings.PRODUCTION:
-    urlpatterns.append(re_path(r"^.*/?$", lambda r: render(r, "web/index.html")))
+    urlpatterns.append(re_path(r"^.*/?$", lambda r: render(r, "index.html")))
