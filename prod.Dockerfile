@@ -2,7 +2,7 @@ FROM node:16-alpine as build
 
 WORKDIR /tmp
 
-COPY ../../web/app/ ./
+COPY ./web/app/ ./
 
 RUN yarn install && yarn build
 
@@ -17,19 +17,19 @@ RUN pip install "poetry==$POETRY_VERSION" && poetry config virtualenvs.create fa
 
 WORKDIR /tmp
 
-COPY ../../pyproject.toml ../../poetry.lock ./
+COPY pyproject.toml poetry.lock ./
 
 RUN poetry export -f requirements.txt --without-hashes | pip install -r /dev/stdin
 
 WORKDIR /backend
 
-COPY ../../api/ ./api/
-COPY ../../squad_awards/ ./squad_awards/
-COPY ../../*.py ./
-COPY ../../deploy/prod/docker-entrypoint.sh ./
+COPY ./api/ ./api/
+COPY ./squad_awards/ ./squad_awards/
+COPY ./*.py ./
+COPY ./*.sh ./
 COPY --from=build /tmp/dist/ ./web/app/
 
 EXPOSE $PORT
 
-ENTRYPOINT [ "/backend/docker-entrypoint.sh" ]
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
 

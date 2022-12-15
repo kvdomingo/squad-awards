@@ -8,12 +8,12 @@ networks:
 services:
   api:
     build:
-      context: ../..
-      dockerfile: deploy/dev/Dockerfile
+      context: .
+      dockerfile: dev.Dockerfile
     image: kvdomingo/squad-awards-api:latest
-    env_file: ../../.env
+    env_file: .env
     volumes:
-      - ../..:/backend
+      - .:/backend
     depends_on:
       - postgres
 
@@ -27,14 +27,14 @@ services:
       - "-c"
       - "yarn install && exec yarn dev --host 0.0.0.0 --port 3000"
     volumes:
-      - ../../web/app:/app
+      - ./web/app:/app
 
   proxy:
     image: bitnami/nginx:1.21.6
     environment:
       NGINX_HTTP_PORT_NUMBER: 8000
     volumes:
-      - ./proxy:/opt/bitnami/nginx/conf/server_blocks:ro
+      - ./proxy/dev:/opt/bitnami/nginx/conf/server_blocks:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.squad-awards-dev.rule=Host(`dev.squad-awards.localhost`)"

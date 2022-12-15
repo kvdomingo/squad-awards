@@ -8,10 +8,10 @@ networks:
 services:
   api:
     build:
-      context: ../..
-      dockerfile: deploy/prod/Dockerfile
+      context: .
+      dockerfile: prod.Dockerfile
     image: kvdomingo/squad-awards-api:latest
-    env_file: ../../.env
+    env_file: .env
     depends_on:
       - postgres
 
@@ -20,7 +20,7 @@ services:
     environment:
       NGINX_HTTP_PORT_NUMBER: 8000
     volumes:
-      - ./proxy:/opt/bitnami/nginx/conf/server_blocks:ro
+      - ./proxy/prod:/opt/bitnami/nginx/conf/server_blocks:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.squad-awards.rule=Host(`squad-awards.localhost`)"

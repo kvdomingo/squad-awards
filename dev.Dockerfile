@@ -9,10 +9,10 @@ RUN pip install "poetry==$POETRY_VERSION" && poetry config virtualenvs.create fa
 
 WORKDIR /tmp
 
-COPY ../../pyproject.toml ../../poetry.lock ./
+COPY pyproject.toml poetry.lock ./
 
 RUN poetry install --no-ansi --no-interaction
 
 WORKDIR /backend
 
-ENTRYPOINT [ "/backend/deploy/dev/docker-entrypoint.sh" ]
+ENTRYPOINT [ "./docker-entrypoint.sh" ]
