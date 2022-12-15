@@ -104,7 +104,7 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
 if PRODUCTION:
     DATABASE_URL = os.environ.get("DATABASE_URL")
     DATABASE_CONFIG = dj_database_url.parse(DATABASE_URL)
-    DATABASE_CONFIG["HOST"] = unquote(DATABASE_CONFIG["HOST"])
+    DATABASE_CONFIG["HOST"] = urllib.parse.unquote(DATABASE_CONFIG["HOST"])
 else:
     DATABASE_CONFIG = dj_database_url.config()
 
