@@ -14,6 +14,7 @@ from .views import (
     spotify_proxy,
     spotify_search,
     youtube_search,
+    youtube_thumbnail_proxy,
 )
 
 router = SimpleRouter(trailing_slash=False)
@@ -30,6 +31,7 @@ urlpatterns = [
     path("choices", list_award_choices),
     path("spotify/search", spotify_search),
     path("spotify/proxy/<path:path>", spotify_proxy),
+    path("youtube/imgProxy", youtube_thumbnail_proxy),
     path("youtube/search", youtube_search),
     *router.urls,
 ]

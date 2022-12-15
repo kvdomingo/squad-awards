@@ -1,7 +1,11 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { IosShareRounded } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import { Box, Button, Grid, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import { saveAs } from "file-saver";
+import html2canvas from "html2canvas";
 import api from "../../api";
+import theme from "../../themes";
 import { AwardChoice, GlobalNotificationState, StepInterface, User } from "../../types";
 import SurveySection from "./SurveySection";
 import SurveySummary from "./SurveySummary";
@@ -73,7 +77,8 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [choices, setChoices] = useState<AwardChoice[]>([]);
   const [answers, setAnswers] = useState<Record<string, AwardChoice | null>>({});
-  const [loading, setLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
 
   useEffect(() => {
     api.survey
@@ -112,7 +117,7 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
   }, []);
 
   function handleSubmit() {
-    setLoading(true);
+    setSubmitLoading(true);
     api.survey
       .submit(answers)
       .then(() =>
@@ -130,7 +135,32 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
           severity: "error",
         });
       })
-      .finally(() => setLoading(false));
+      .finally(() => setSubmitLoading(false));
+  }
+
+  function handleDownload() {
+    setShareLoading(true);
+    const summary = document.querySelector("#surveySummary")! as HTMLElement;
+    html2canvas(summary, {
+      useCORS: true,
+      backgroundColor: theme.palette.background.default,
+      onclone: (documentClone, element) => {
+        const summaryContainer = element.querySelector("#surveySummaryContainer")! as HTMLElement;
+        element.style.padding = `${theme.spacing(3)} 0`;
+        element.style.margin = "0";
+        summaryContainer.style.padding = theme.spacing(2);
+        summaryContainer.style.paddingRight = theme.spacing(3);
+        const title = element.querySelector("#surveyTitle")!;
+        title.textContent = `${user.username}'s 2022 Awards`;
+      },
+      scale: 1.33,
+    })
+      .then(canvas => {
+        canvas.toBlob(async blob => {
+          saveAs(await blob!, `${user.username}'s 2022 Awards.png`);
+        }, "image/png");
+      })
+      .finally(() => setShareLoading(false));
   }
 
   return (
@@ -146,21 +176,23 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
           </Step>
         ))}
       </Stepper>
-      <Typography variant="h4" component="h1" textAlign="center" sx={{ my: 4 }}>
-        {STEPS[activeStep].label}
-      </Typography>
-      {activeStep === STEPS.length - 1 ? (
-        <SurveySummary answers={answers} steps={STEPS} />
-      ) : (
-        <SurveySection
-          readOnly={user.has_answered}
-          key={STEPS[activeStep].key}
-          step={STEPS[activeStep]}
-          options={choices.filter(c => c.category === STEPS[activeStep].key)}
-          answers={answers}
-          setAnswers={setAnswers}
-        />
-      )}
+      <span id="surveySummary">
+        <Typography variant="h4" component="h1" textAlign="center" sx={{ my: 4 }} id="surveyTitle">
+          {STEPS[activeStep].label}
+        </Typography>
+        {activeStep === STEPS.length - 1 ? (
+          <SurveySummary answers={answers} steps={STEPS} />
+        ) : (
+          <SurveySection
+            readOnly={user.has_answered}
+            key={STEPS[activeStep].key}
+            step={STEPS[activeStep]}
+            options={choices.filter(c => c.category === STEPS[activeStep].key)}
+            answers={answers}
+            setAnswers={setAnswers}
+          />
+        )}
+      </span>
       <Grid
         container
         sx={{
@@ -174,7 +206,21 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
             "linear-gradient(0deg, rgba(36, 36, 36, 1.0) 0%, rgba(36, 36, 36, 0.85) 67%, rgba(36, 36, 36, 0.0) 100%)",
         }}
       >
-        <Grid item container xs />
+        <Grid item container xs>
+          {activeStep === STEPS.length - 1 && Object.values(answers).some(Boolean) && (
+            <LoadingButton
+              loading={shareLoading}
+              color="success"
+              variant="contained"
+              sx={{ mr: 1, borderRadius: 25 }}
+              onClick={handleDownload}
+              size="large"
+              startIcon={<IosShareRounded />}
+            >
+              Share
+            </LoadingButton>
+          )}
+        </Grid>
         <Grid item container xs justifyContent="flex-end">
           <Button
             variant="outlined"
@@ -195,7 +241,7 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
             }
             disabled={(activeStep === STEPS.length - 1 && Object.values(answers).every(el => !el)) || user.has_answered}
             size="large"
-            loading={loading}
+            loading={submitLoading}
             sx={{ borderRadius: 25 }}
           >
             {activeStep === STEPS.length - 1 ? (user.has_answered ? "Already submitted" : "Submit") : "Next"}

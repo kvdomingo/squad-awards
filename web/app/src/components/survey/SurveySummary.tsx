@@ -8,7 +8,7 @@ interface SurveySummaryProps {
 
 function SurveySummary({ answers, steps }: SurveySummaryProps) {
   return (
-    <Grid container spacing={2} sx={{ pb: 15 }}>
+    <Grid container spacing={2} sx={{ pb: 15 }} id="surveySummaryContainer">
       {Object.keys(answers).map((key: keyof typeof answers) => (
         <Grid item xs={6} md={12 / 5} key={key}>
           <Card variant="outlined" sx={{ height: "100%" }}>
@@ -17,7 +17,9 @@ function SurveySummary({ answers, steps }: SurveySummaryProps) {
               image={
                 answers[key]?.image
                   ? answers[key]?.image?.startsWith("http")
-                    ? answers[key]?.image ?? ""
+                    ? answers[key]!.image!.includes("ytimg.com")
+                      ? `/api/youtube/imgProxy?to=${encodeURIComponent(answers[key]!.image!)}`
+                      : answers[key]!.image!
                     : `https://storage.googleapis.com/squad-awards-assets/${answers[key]?.image}`
                   : ""
               }
