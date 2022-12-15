@@ -8,7 +8,7 @@ interface SurveySummaryProps {
 
 function SurveySummary({ answers, steps }: SurveySummaryProps) {
   return (
-    <Grid container spacing={2} sx={{ pb: 15 }} id="surveySummaryContainer">
+    <Grid container spacing={2} id="surveySummaryContainer">
       {Object.keys(answers).map((key: keyof typeof answers) => (
         <Grid item xs={6} md={12 / 5} key={key}>
           <Card variant="outlined" sx={{ height: "100%" }}>

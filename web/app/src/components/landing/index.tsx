@@ -5,10 +5,11 @@ import Survey from "../survey";
 
 interface LandingProps {
   user: User;
+  setUser: Dispatch<SetStateAction<User | null>>;
   setGlobalNotification: Dispatch<SetStateAction<GlobalNotificationState>>;
 }
 
-function Landing({ user, setGlobalNotification }: LandingProps) {
+function Landing({ user, setUser, setGlobalNotification }: LandingProps) {
   return (
     <Container maxWidth="xl">
       <Grid container justifyContent="flex-end" alignItems="center">
@@ -24,7 +25,7 @@ function Landing({ user, setGlobalNotification }: LandingProps) {
         </Typography>
       </Grid>
       <Grid container>
-        <Survey setGlobalNotification={setGlobalNotification} user={user} />
+        <Survey setGlobalNotification={setGlobalNotification} user={user} setUser={setUser} />
       </Grid>
     </Container>
   );

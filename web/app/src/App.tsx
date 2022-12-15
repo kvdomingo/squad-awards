@@ -35,7 +35,7 @@ function App() {
           path="/"
           element={
             loggedIn ? (
-              <Landing user={user!} setGlobalNotification={setGlobalNotification} />
+              <Landing user={user!} setUser={setUser} setGlobalNotification={setGlobalNotification} />
             ) : (
               <Login loading={loading} />
             )

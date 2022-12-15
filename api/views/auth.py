@@ -69,8 +69,10 @@ def auth_callback(request: RESTRequest):
     if not r.ok:
         logger.error(r.text)
         return HttpResponseRedirect("/", status=r.status_code)
-    user_response: dict = r.json()
-    d_id = user_response.pop("id")
+    data: dict = r.json()
+    d_id = data.pop("id")
+    valid_fields = [field.name for field in DiscordUser._meta.get_fields()]
+    user_response = {k: v for k, v in data.items() if k in valid_fields}
     obj, _ = DiscordUser.objects.update_or_create(discord_id=d_id, defaults=user_response)
     request.session.update({"user": DiscordUserSerializer(obj).data})
 

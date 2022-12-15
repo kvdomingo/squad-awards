@@ -1,7 +1,18 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { IosShareRounded } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
-import { Box, Button, Grid, Step, StepLabel, Stepper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Grid,
+  Step,
+  StepContent,
+  StepContext,
+  StepLabel,
+  Stepper,
+  Typography,
+} from "@mui/material";
 import { saveAs } from "file-saver";
 import html2canvas from "html2canvas";
 import api from "../../api";
@@ -70,10 +81,11 @@ const STEPS: StepInterface[] = [
 
 interface SurveyProps {
   user: User;
+  setUser: Dispatch<SetStateAction<User | null>>;
   setGlobalNotification: Dispatch<SetStateAction<GlobalNotificationState>>;
 }
 
-function Survey({ user, setGlobalNotification }: SurveyProps) {
+function Survey({ user, setUser, setGlobalNotification }: SurveyProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [choices, setChoices] = useState<AwardChoice[]>([]);
   const [answers, setAnswers] = useState<Record<string, AwardChoice | null>>({});
@@ -120,13 +132,14 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
     setSubmitLoading(true);
     api.survey
       .submit(answers)
-      .then(() =>
+      .then(() => {
         setGlobalNotification({
           visible: true,
           message: "Your answers have been submitted.",
           severity: "success",
-        }),
-      )
+        });
+        setUser(user => ({ ...user!, has_answered: true }));
+      })
       .catch(err => {
         console.error(err.message);
         setGlobalNotification({
@@ -149,9 +162,9 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
         element.style.padding = `${theme.spacing(3)} 0`;
         element.style.margin = "0";
         summaryContainer.style.padding = theme.spacing(2);
-        summaryContainer.style.paddingRight = theme.spacing(3);
-        const title = element.querySelector("#surveyTitle")!;
+        const title = element.querySelector("#surveyTitle")! as HTMLElement;
         title.textContent = `${user.username}'s 2022 Awards`;
+        title.style.display = "block";
       },
       scale: 1.33,
     })
@@ -164,35 +177,45 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
   }
 
   return (
-    <Box sx={{ width: "100%", mt: 6 }}>
-      <Stepper activeStep={activeStep}>
+    <Container sx={{ mt: 6 }}>
+      <Stepper activeStep={activeStep} orientation="vertical" sx={{ pb: 15 }}>
         {STEPS.map((step, i) => (
-          <Step
-            key={step.key}
-            onClick={() => setActiveStep(i)}
-            sx={{ "cursor": "pointer", "& .Mui-disabled": { cursor: "pointer" } }}
-          >
-            <StepLabel>{step.label}</StepLabel>
+          <Step key={step.key} onClick={() => setActiveStep(i)}>
+            <StepLabel sx={{ "cursor": "pointer", "& .Mui-disabled": { cursor: "pointer" } }}>
+              <Typography variant="h6" component="h1">
+                {step.label}
+              </Typography>
+            </StepLabel>
+            <StepContent>
+              <Box sx={{ mt: 6, mb: 4 }} id="surveySummary">
+                {activeStep === STEPS.length - 1 ? (
+                  <>
+                    <Typography
+                      variant="h5"
+                      component="h1"
+                      textAlign="center"
+                      sx={{ mb: 2, display: "none" }}
+                      id="surveyTitle"
+                    >
+                      Your Summary
+                    </Typography>
+                    <SurveySummary answers={answers} steps={STEPS} />
+                  </>
+                ) : (
+                  <SurveySection
+                    readOnly={user.has_answered}
+                    key={STEPS[activeStep].key}
+                    step={STEPS[activeStep]}
+                    options={choices.filter(c => c.category === STEPS[activeStep].key)}
+                    answers={answers}
+                    setAnswers={setAnswers}
+                  />
+                )}
+              </Box>
+            </StepContent>
           </Step>
         ))}
       </Stepper>
-      <span id="surveySummary">
-        <Typography variant="h4" component="h1" textAlign="center" sx={{ my: 4 }} id="surveyTitle">
-          {STEPS[activeStep].label}
-        </Typography>
-        {activeStep === STEPS.length - 1 ? (
-          <SurveySummary answers={answers} steps={STEPS} />
-        ) : (
-          <SurveySection
-            readOnly={user.has_answered}
-            key={STEPS[activeStep].key}
-            step={STEPS[activeStep]}
-            options={choices.filter(c => c.category === STEPS[activeStep].key)}
-            answers={answers}
-            setAnswers={setAnswers}
-          />
-        )}
-      </span>
       <Grid
         container
         sx={{
@@ -212,7 +235,7 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
               loading={shareLoading}
               color="success"
               variant="contained"
-              sx={{ mr: 1, borderRadius: 25 }}
+              sx={{ mr: 1, borderRadius: 5 }}
               onClick={handleDownload}
               size="large"
               startIcon={<IosShareRounded />}
@@ -224,7 +247,7 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
         <Grid item container xs justifyContent="flex-end">
           <Button
             variant="outlined"
-            sx={{ mr: 1, borderRadius: 25 }}
+            sx={{ mr: 1, borderRadius: 5 }}
             onClick={() => setActiveStep(step => (step === 0 ? step : step - 1))}
             disabled={activeStep === 0}
             size="large"
@@ -239,16 +262,16 @@ function Survey({ user, setGlobalNotification }: SurveyProps) {
                 ? handleSubmit()
                 : setActiveStep(step => (step === STEPS.length - 1 ? step : step + 1))
             }
-            disabled={(activeStep === STEPS.length - 1 && Object.values(answers).every(el => !el)) || user.has_answered}
+            disabled={activeStep === STEPS.length - 1 && (Object.values(answers).every(el => !el) || user.has_answered)}
             size="large"
             loading={submitLoading}
-            sx={{ borderRadius: 25 }}
+            sx={{ borderRadius: 5 }}
           >
             {activeStep === STEPS.length - 1 ? (user.has_answered ? "Already submitted" : "Submit") : "Next"}
           </LoadingButton>
         </Grid>
       </Grid>
-    </Box>
+    </Container>
   );
 }
 

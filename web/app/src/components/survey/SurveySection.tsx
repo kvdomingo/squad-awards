@@ -97,9 +97,9 @@ function SurveySection({ readOnly, step, options, setAnswers, answers }: SurveyS
   }
 
   return (
-    <Grid container spacing={2} sx={{ pb: 15 }}>
+    <Grid container spacing={2}>
       {["artist", "album", "track", "video"].includes(step.type ?? "") ? (
-        <Container maxWidth="md">
+        <Container>
           <Autocomplete
             readOnly={readOnly}
             disabled={readOnly}
