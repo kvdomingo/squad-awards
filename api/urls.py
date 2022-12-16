@@ -8,9 +8,7 @@ from .views import (
     health,
     list_award_categories,
     list_award_choices,
-    login,
     logout,
-    refresh,
     spotify_proxy,
     spotify_search,
     youtube_search,
@@ -22,10 +20,8 @@ router.register("answer", AnswerView)
 
 urlpatterns = [
     path("", health),
-    path("auth/token", login),
     path("callback", auth_callback),
     path("auth/user", get_current_user),
-    path("auth/refresh", refresh),
     path("auth/logout", logout),
     path("categories", list_award_categories),
     path("choices", list_award_choices),

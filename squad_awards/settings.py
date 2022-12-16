@@ -37,12 +37,7 @@ DEBUG = not PRODUCTION
 
 DEBUG_PROPAGATE_EXCEPTIONS = True
 
-if PRODUCTION:
-    ALLOWED_HOSTS = [
-        ".kvdstudio.app",
-    ]
-else:
-    ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [".kvdstudio.app" if PRODUCTION else "*"]
 
 
 # Application definition
@@ -93,9 +88,7 @@ WSGI_APPLICATION = "squad_awards.wsgi.application"
 
 CORS_ORIGIN_ALLOW_ALL = not PRODUCTION
 
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://(.+)\.kvdstudio\.app$",
-]
+CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://(.+)\.kvdstudio\.app$"]
 
 
 # Database
@@ -108,8 +101,8 @@ if PRODUCTION:
 else:
     DATABASE_CONFIG = dj_database_url.config()
 
-
 DATABASES = {"default": DATABASE_CONFIG}
+
 
 if PRODUCTION:
     REST_FRAMEWORK = {
@@ -186,7 +179,7 @@ DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET")
 
 DISCORD_CALLBACK_URL = (
-    "http://squad-awards.localhost/api/callback" if PRODUCTION else "http://dev.squad-awards.localhost/api/callback"
+    "https://awards2022.kvdstudio.app/api/callback" if PRODUCTION else "http://dev.squad-awards.localhost/api/callback"
 )
 
 DISCORD_API_URL = urllib.parse.urlparse("https://discord.com/api/v10")
