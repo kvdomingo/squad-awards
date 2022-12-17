@@ -53,8 +53,8 @@ function SurveySection({ readOnly, step, options, setAnswers, answers }: SurveyS
                 setAutocompleteOptions(
                   items.map((it: SpotifyTrackItem | SpotifyAlbumItem | SpotifyArtistItem) => ({
                     id: it.id,
-                    name: it.name,
-                    image: "images" in it ? it.images[0]?.url ?? null : it.album.images?.[0]?.url ?? null,
+                    name: it.type === "artist" ? it.name : `${it.artists[0].name} - ${it.name}`,
+                    image: (it.type === "track" ? it.album.images?.[0]?.url : it.images[0]?.url) ?? null,
                     category: step.key,
                   })),
                 );

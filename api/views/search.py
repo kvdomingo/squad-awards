@@ -18,7 +18,12 @@ def spotify_search(request: RESTRequest):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
     r = requests.get(
         api_url.geturl(),
-        params={**request.GET},
+        params={
+            **request.GET,
+            "q": f"{request.GET.get('q')} year:2021-2022",
+            "limit": 20,
+            "market": "KR",
+        },
         headers={"Authorization": f"Bearer {access}"},
     )
     logger.debug(f"GET {r.url} {r.status_code} {r.elapsed.microseconds / 1e6:.2f}ms")

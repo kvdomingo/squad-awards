@@ -118,7 +118,12 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "TIMEOUT": None,
-    }
+    },
+    "search": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "search_api_cache",
+        "TIMEOUT": None,
+    },
 }
 
 

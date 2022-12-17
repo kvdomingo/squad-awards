@@ -45,8 +45,7 @@ const api = {
       type: "album" | "artist" | "track",
       query: string,
     ): Promise<AxiosResponse<SpotifySearchAlbumResult | SpotifySearchTrackResult | SpotifySearchArtistResult>> {
-      const q = encodeURIComponent(`${query} year:2022`);
-      return axi.get(`/spotify/search?type=${type}&q=${q}&limit=20&market=KR`);
+      return axi.get(`/spotify/search?type=${type}&q=${query}`);
     },
     youtube(query: string): Promise<AxiosResponse<YoutubeSearchResult>> {
       return axi.get(`/youtube/search?q=${query}`);

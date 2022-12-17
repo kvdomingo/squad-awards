@@ -37,8 +37,8 @@ function SurveySummary({ answers, steps }: SurveySummaryProps) {
                 flexDirection: "column",
               }}
             >
-              <Typography variant="h6">{steps.find((s: Record<string, any>) => s.key === key)!.label}</Typography>
-              <Typography variant="overline">{answers[key]?.name ?? "None"}</Typography>
+              <Typography variant="overline">{steps.find((s: Record<string, any>) => s.key === key)!.label}</Typography>
+              <Typography variant="body1">{answers[key]?.name ?? "None"}</Typography>
             </CardContent>
           </Card>
         </Grid>
