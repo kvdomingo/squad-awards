@@ -122,7 +122,7 @@ CACHES = {
     "search": {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
         "LOCATION": "search_api_cache",
-        "TIMEOUT": None,
+        "TIMEOUT": 60 * 60 * 24,  # 1 day
     },
 }
 
